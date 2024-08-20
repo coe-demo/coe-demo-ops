@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: acrname.azurecr.io/demo:{{newTag}} # 이미지 주소 변경필요
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources: 
+          requests:
+            cpu: 200m
+            memory: 500Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: http
+          initialDelaySeconds: 150
+          periodSeconds: 15
+          timeoutSeconds: 30
+          successThreshold: 1
+          failureThreshold: 15
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: http
+          initialDelaySeconds: 150
+          periodSeconds: 15
+          timeoutSeconds: 30
+          successThreshold: 1
+          failureThreshold: 5
+#        volumeMounts:
+#        - mountPath: /var/log/WASLOG/
+#          name: waslog-volume 
+#        - mountPath: /var/log/LAMP/
+#          name: lamp-volume
+      dnsPolicy: ClusterFirst
+#      hostAliases:
+#      - hostnames:
+#        - inisafenet
+#        ip: 147.6.37.57 ## 여기 주소를 바꿔야함
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30 
+#      volumes:  
+#      - hostPath:
+#          path: /usr/share/zoneinfo/Asia/Seoul
+#        name: timezone-config
+#      - hostPath:
+#          path: /logs/vivaldi/be-chgbill/WASLOG/
+#          type: DirectoryOrCreate
+#        name: waslog-volume
+#      - hostPath:
+#          path: /logs/vivaldi/LAMP/
+#          type: DirectoryOrCreate
+#        name: lamp-volume
+      # nodeSelector: 
+      #   vivaldiorig: 'true'

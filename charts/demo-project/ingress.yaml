@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+spec:
+  rules:
+  - host: 
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: demo
+            port:
+              number: 80
+  tls: []
+  #  - caCertificate: |-
+  #      -----BEGIN CERTIFICATE-----
+  #      MIIG1zCCBb+gAwIBAgIRAIZPYQZCKrU41i4AtcVraEEwDQYJKoZIhvcNAQELBQAw
+  #
+  # kubernetes(accordian)에서는 secret으로 생성하고 secret 명칭으로 입력한다.
